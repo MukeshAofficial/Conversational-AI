@@ -9,7 +9,8 @@ from langchain_chroma import Chroma
 from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate
-
+import requests
+from langchain_community.document_loaders import PyPDFLoader
 # Load environment variables
 load_dotenv()
 
@@ -21,12 +22,24 @@ google_api_key = os.getenv("GOOGLE_API_KEY")
 if not google_api_key:
     raise ValueError("GOOGLE_API_KEY is missing. Set it in the environment variables.")
 
-# Load and process the PDF document
-PDF_PATH = "DWM.pdf"
+
+PDF_URL = "https://phi-public.s3.amazonaws.com/recipes/ThaiRecipes.pdf"
+
+# Download the PDF
+response = requests.get(PDF_URL)
+
+# Save the PDF to the local file system
+with open("ThaiRecipes.pdf", "wb") as f:
+    f.write(response.content)
+
+# Load the downloaded PDF
+loader = PyPDFLoader("ThaiRecipes.pdf")
+data = loader.load()
+
+
 print("Loading and processing PDF...")
 
-loader = PyPDFLoader(PDF_PATH)
-data = loader.load()
+=
 
 # Split the document into chunks
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000)
