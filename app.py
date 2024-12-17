@@ -10,7 +10,7 @@ from langchain.chains import create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate
 import requests
-from langchain_community.document_loaders import PyPDFLoader
+
 # Load environment variables
 load_dotenv()
 
@@ -21,7 +21,6 @@ app = FastAPI(title="PDF Query API", version="1.0")
 google_api_key = os.getenv("GOOGLE_API_KEY")
 if not google_api_key:
     raise ValueError("GOOGLE_API_KEY is missing. Set it in the environment variables.")
-
 
 PDF_URL = "https://phi-public.s3.amazonaws.com/recipes/ThaiRecipes.pdf"
 
@@ -36,10 +35,7 @@ with open("ThaiRecipes.pdf", "wb") as f:
 loader = PyPDFLoader("ThaiRecipes.pdf")
 data = loader.load()
 
-
 print("Loading and processing PDF...")
-
-=
 
 # Split the document into chunks
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000)
@@ -60,7 +56,6 @@ llm = ChatGoogleGenerativeAI(
     max_tokens=None, 
     timeout=60  # Timeout in seconds
 )
-
 
 # Define system prompt
 system_prompt = (
@@ -86,11 +81,9 @@ prompt = ChatPromptTemplate.from_messages(
 question_answer_chain = create_stuff_documents_chain(llm, prompt)
 rag_chain = create_retrieval_chain(retriever, question_answer_chain)
 
-
 # Define request schema
 class QueryRequest(BaseModel):
     query: str
-
 
 # Define API endpoint
 @app.post("/query", summary="Query the PDF Document", description="Provide a query to retrieve and answer questions from the PDF.")
